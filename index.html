@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#fff4fa">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="アイカツカード管理">
+<link rel="manifest" id="manifest">
+<title>アイカツアンコール カード管理</title>
+<style>
+:root{--bg:#fff8fc;--panel:#fff;--text:#3d3440;--muted:#8b7d88;--pink:#e86fa7;--pink2:#f8c4dd;--line:#f0dce7;--shadow:0 8px 25px rgba(130,70,105,.10)}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(135deg,#fff8fc,#f9f4ff);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif}
+header{position:sticky;top:0;z-index:10;background:rgba(255,255,255,.94);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.head{max-width:1250px;margin:auto;padding:13px 16px;display:flex;align-items:center;gap:12px;justify-content:space-between}
+h1{font-size:19px;margin:0}.sub{font-size:11px;color:var(--muted);margin-top:3px}
+.actions{display:flex;gap:6px;flex-wrap:wrap}button,.filebtn{border:1px solid var(--line);background:white;color:var(--text);border-radius:11px;padding:9px 11px;font-weight:700;cursor:pointer}.primary{background:var(--pink);color:white;border-color:var(--pink)}
+nav{max-width:1250px;margin:auto;padding:0 16px 11px;display:flex;gap:7px;overflow:auto}nav button{white-space:nowrap;padding:7px 12px}nav button.active{background:#ffe5f0;border-color:#f4bfd7;color:#a94e7b}
+main{max-width:1250px;margin:auto;padding:16px}.view{display:none}.view.active{display:block}
+.toolbar{background:var(--panel);border:1px solid var(--line);border-radius:17px;padding:13px;box-shadow:var(--shadow);display:grid;grid-template-columns:2fr repeat(5,1fr);gap:8px}
+input,select,textarea{width:100%;border:1px solid var(--line);border-radius:10px;background:#fff;padding:10px;color:var(--text);font:inherit}.search{font-size:15px}
+.stats{display:flex;gap:7px;flex-wrap:wrap;margin:12px 0;color:var(--muted);font-size:12px}.chip{background:#fff;border:1px solid var(--line);padding:7px 10px;border-radius:999px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(165px,1fr));gap:13px}
+.card{background:#fff;border:1px solid var(--line);border-radius:15px;overflow:hidden;box-shadow:var(--shadow);position:relative;cursor:pointer}.thumb{aspect-ratio:3/4;background:#f5edf2;display:flex;align-items:center;justify-content:center;overflow:hidden}.thumb img{width:100%;height:100%;object-fit:cover}.placeholder{font-size:12px;color:var(--muted);text-align:center;padding:15px}
+.cardbody{padding:10px}.name{font-weight:800;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}.tag{font-size:10px;padding:4px 6px;background:#fff0f6;border-radius:7px;color:#9c4f76}.meta{font-size:11px;color:var(--muted);margin-top:6px;line-height:1.5}.status{font-size:10px;margin-top:6px;font-weight:700}
+.del{position:absolute;right:6px;top:6px;border-radius:50%;padding:4px 7px;background:rgba(255,255,255,.92);font-size:12px;z-index:2}
+.empty{padding:45px 20px;text-align:center;color:var(--muted);background:#fff;border:1px dashed var(--line);border-radius:17px}
+.panel{background:#fff;border:1px solid var(--line);border-radius:18px;padding:16px;box-shadow:var(--shadow);margin-bottom:13px}
+.panel h2{font-size:17px;margin:0 0 12px}.panel h3{font-size:14px;margin:15px 0 8px}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}.kpi{background:#fff4f9;border:1px solid var(--line);border-radius:14px;padding:13px}.kpi b{display:block;font-size:22px}.kpi span{font-size:11px;color:var(--muted)}
+.progress{height:10px;background:#f2e9ef;border-radius:999px;overflow:hidden}.progress i{display:block;height:100%;background:linear-gradient(90deg,#e86fa7,#b995e9);border-radius:999px}
+.barrow{margin:11px 0}.barhead{display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px}
+.collection{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px}.collection .item{border:1px solid var(--line);border-radius:13px;padding:11px;background:#fff}.item .small{font-size:11px;color:var(--muted)}
+.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:9px}.full{grid-column:1/-1}.modal{display:none;position:fixed;inset:0;background:rgba(40,25,35,.4);z-index:30;align-items:center;justify-content:center;padding:16px}.modal.show{display:flex}.box{background:white;border-radius:20px;width:min(650px,100%);max-height:92vh;overflow:auto;padding:17px}.preview{width:115px;aspect-ratio:3/4;object-fit:cover;border-radius:10px;border:1px solid var(--line);margin:4px 0 10px}.note{font-size:11px;color:var(--muted);line-height:1.55}
+.detailimg{width:min(270px,80vw);max-height:55vh;object-fit:contain;border-radius:12px;background:#f5edf2}.detail{display:flex;gap:18px}.detailinfo{flex:1}.big{font-size:21px;font-weight:800;margin:0 0 8px}.countbox{display:flex;gap:8px;align-items:center;margin-top:10px}.countbox button{padding:5px 10px}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#3d3440;color:white;padding:10px 15px;border-radius:999px;z-index:100;display:none;font-size:12px}
+@media(max-width:800px){.toolbar{grid-template-columns:1fr 1fr}.toolbar .wide{grid-column:1/-1}.kpis{grid-template-columns:repeat(2,1fr)}.detail{flex-direction:column;align-items:center}.detailinfo{width:100%}}
+@media(max-width:430px){main{padding:10px}.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.cardbody{padding:8px}.formgrid{grid-template-columns:1fr}.full{grid-column:auto}.head{align-items:flex-start}.sub{max-width:190px}}
+</style>
+</head>
+<body>
+<header><div class="head">
+ <div><h1>✦ アイカツアンコール カード管理</h1><div class="sub">撮影・検索・コンプ率・バックアップまでまとめて管理</div></div>
+ <div class="actions">
+  <label class="filebtn">📷 取り込み<input id="photos" type="file" accept="image/*" multiple capture="environment" hidden></label>
+  <button class="primary" onclick="openAdd()">＋ 登録</button>
+ </div>
+</div>
+<nav>
+ <button class="active" data-view="cards">カード一覧</button>
+ <button data-view="collection">コレクション</button>
+ <button data-view="settings">設定・バックアップ</button>
+</nav></header>
+
+<main>
+<section id="cards" class="view active">
+ <div class="toolbar">
+  <input class="search wide" id="q" placeholder="🔎 カード名・弾数・ブランドなどで検索">
+  <select id="series"><option value="">弾数：すべて</option></select>
+  <select id="promo"><option value="">プロモ：すべて</option><option>通常</option><option>プロモ</option></select>
+  <select id="type"><option value="">タイプ：すべて</option><option>キュート</option><option>クール</option><option>セクシー</option><option>ポップ</option><option>なし・その他</option></select>
+  <select id="brand"><option value="">ブランド：すべて</option></select>
+  <select id="rarity"><option value="">レア度：すべて</option><option>N</option><option>R</option><option>SR</option><option>PR</option><option>CP</option><option>その他</option></select>
+ </div>
+ <div class="stats" id="stats"></div><div id="grid" class="grid"></div>
+</section>
+
+<section id="collection" class="view">
+ <div class="panel"><h2>♡ コレクション進捗</h2><div class="kpis" id="kpis"></div></div>
+ <div class="panel"><h2>弾ごとのコンプリート率</h2><div id="seriesBars"></div></div>
+ <div class="panel"><h2>ブランド別コレクション</h2><div class="collection" id="brandBars"></div></div>
+ <div class="panel"><h2>タイプ別</h2><div class="collection" id="typeBars"></div></div>
+</section>
+
+<section id="settings" class="view">
+ <div class="panel"><h2>⚙ 設定・バックアップ</h2>
+  <h3>データ</h3>
+  <div class="actions">
+   <button onclick="exportJSON()">⬇ JSONでバックアップ</button>
+   <label class="filebtn">⬆ バックアップを復元<input id="importJSON" type="file" accept=".json,application/json" hidden></label>
+   <button onclick="exportCSV()">⬇ CSVを書き出す</button>
+   <button onclick="clearAll()">データを全削除</button>
+  </div>
+  <h3>ホーム画面</h3>
+  <p class="note">iPhoneのSafariなら「共有」→「ホーム画面に追加」でアプリのように使えます。対応ブラウザでは下のボタンからも追加できます。</p>
+  <button class="primary" id="installBtn" onclick="installApp()" style="display:none">＋ ホーム画面に追加</button>
+  <h3>保存について</h3><p class="note">カード情報と画像はこのブラウザ内に保存します。端末やブラウザのデータを消すと失われる可能性があるため、定期的にJSONバックアップを取ってください。</p>
+ </div>
+</section>
+</main>
+
+<div class="modal" id="modal"><div class="box">
+ <h2 id="modalTitle">カードを登録</h2><div id="previewWrap"></div>
+ <div class="formgrid">
+  <input id="name" placeholder="カード名">
+  <input id="seriesInput" placeholder="弾数（例：第1弾）">
+  <select id="promoInput"><option>通常</option><option>プロモ</option></select>
+  <select id="typeInput"><option>キュート</option><option>クール</option><option>セクシー</option><option>ポップ</option><option>なし・その他</option></select>
+  <input id="brandInput" placeholder="ブランド">
+  <select id="rarityInput"><option>N</option><option>R</option><option>SR</option><option>PR</option><option>CP</option><option>その他</option></select>
+  <select id="statusInput"><option>所持</option><option>未所持</option><option>ダブり</option></select>
+  <input id="countInput" type="number" min="1" value="1" placeholder="枚数">
+  <textarea id="memo" class="full" rows="3" placeholder="メモ（入手先・交換用など）"></textarea>
+ </div>
+ <div id="ocrArea" class="note" style="margin-top:9px"></div>
+ <div class="actions" style="justify-content:flex-end;margin-top:12px"><button onclick="closeModal()">キャンセル</button><button class="primary" onclick="saveCard()">保存</button></div>
+</div></div>
+
+<div class="modal" id="detailModal"><div class="box">
+ <div id="detailContent"></div><div class="actions" style="justify-content:flex-end;margin-top:12px"><button onclick="closeDetail()">閉じる</button></div>
+</div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+const KEY="aikatsu-encore-cards-v2";
+let cards=JSON.parse(localStorage.getItem(KEY)||"[]"), pendingImage="", editingId=null, deferredPrompt=null;
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+function save(){localStorage.setItem(KEY,JSON.stringify(cards));}
+function toast(t){$("toast").textContent=t;$("toast").style.display="block";setTimeout(()=>$("toast").style.display="none",2200)}
+function openAdd(img="",card=null){
+ editingId=card?.id||null;pendingImage=img||card?.image||"";
+ $("modalTitle").textContent=card?"カードを編集":"カードを登録";
+ $("previewWrap").innerHTML=pendingImage?`<img class="preview" src="${pendingImage}">`:"";
+ $("name").value=card?.name||"";$("seriesInput").value=card?.series||"";$("promoInput").value=card?.promo||"通常";
+ $("typeInput").value=card?.type||"キュート";$("brandInput").value=card?.brand||"";$("rarityInput").value=card?.rarity||"N";
+ $("statusInput").value=card?.status||"所持";$("countInput").value=card?.count||1;$("memo").value=card?.memo||"";
+ $("ocrArea").textContent=img?"画像を読み込みました。下の項目を確認してから保存してください。":"";
+ $("modal").classList.add("show");
+ if(img) runOCR(img);
+}
+function closeModal(){$("modal").classList.remove("show");pendingImage="";editingId=null}
+function saveCard(){
+ const data={image:pendingImage,name:$("name").value||"名称未設定",series:$("seriesInput").value||"未分類",promo:$("promoInput").value,type:$("typeInput").value,brand:$("brandInput").value||"未設定",rarity:$("rarityInput").value,status:$("statusInput").value,count:Math.max(1,+$("countInput").value||1),memo:$("memo").value};
+ if(editingId){let i=cards.findIndex(c=>c.id===editingId);if(i>=0)cards[i]={...cards[i],...data}}else cards.unshift({id:Date.now()+Math.random(),...data});
+ save();closeModal();render();renderCollection();toast(editingId?"更新しました":"カードを登録しました");
+}
+function removeCard(id){if(confirm("このカードを削除しますか？")){cards=cards.filter(c=>c.id!==id);save();render();renderCollection();}}
+function matches(c){let q=$("q").value.toLowerCase().trim();return(!q||Object.values(c).join(" ").toLowerCase().includes(q))&&(!$("series").value||c.series===$("series").value)&&(!$("promo").value||c.promo===$("promo").value)&&(!$("type").value||c.type===$("type").value)&&(!$("brand").value||c.brand===$("brand").value)&&(!$("rarity").value||c.rarity===$("rarity").value)}
+function fill(id,vals,label){let s=$(id),old=s.value;s.innerHTML=`<option value="">${label}</option>`+vals.map(v=>`<option>${esc(v)}</option>`).join("");if(vals.includes(old))s.value=old}
+function render(){
+ const f=cards.filter(matches);$("stats").innerHTML=`<span class="chip">登録 ${cards.length}種</span><span class="chip">表示 ${f.length}種</span><span class="chip">所持 ${cards.filter(c=>c.status==="所持"||c.status==="ダブり").length}種</span><span class="chip">ダブり ${cards.filter(c=>c.status==="ダブり").length}種</span>`;
+ fill("series",[...new Set(cards.map(c=>c.series))].filter(Boolean).sort((a,b)=>a.localeCompare(b,"ja")),"弾数：すべて");fill("brand",[...new Set(cards.map(c=>c.brand))].filter(Boolean).sort((a,b)=>a.localeCompare(b,"ja")),"ブランド：すべて");
+ $("grid").innerHTML=f.length?f.map(c=>`
+ <article class="card" onclick="showDetail('${c.id}')">
+  <button class="del" onclick="event.stopPropagation();removeCard('${c.id}')">×</button>
+  <div class="thumb">${c.image?`<img src="${c.image}" alt="">`:`<div class="placeholder">画像なし<br>カード情報のみ</div>`}</div>
+  <div class="cardbody"><div class="name">${esc(c.name)}</div>
+  <div class="tags"><span class="tag">${esc(c.series)}</span><span class="tag">${esc(c.rarity)}</span><span class="tag">${esc(c.type)}</span>${c.promo==="プロモ"?'<span class="tag">PROMO</span>':''}</div>
+  <div class="meta">🏷 ${esc(c.brand)}<br>枚数：${c.count||1}</div><div class="status">${esc(c.status||"所持")}</div></div>
+ </article>`).join(""):`<div class="empty" style="grid-column:1/-1">まだカードがありません。<br>「📷 取り込み」からカードを追加しよう！</div>`;
+}
+function showDetail(id){
+ const c=cards.find(x=>String(x.id)===String(id));if(!c)return;
+ $("detailContent").innerHTML=`<div class="detail">${c.image?`<img class="detailimg" src="${c.image}">`:""}<div class="detailinfo"><p class="big">${esc(c.name)}</p><div class="tags"><span class="tag">${esc(c.series)}</span><span class="tag">${esc(c.rarity)}</span><span class="tag">${esc(c.type)}</span><span class="tag">${esc(c.promo)}</span></div><p>ブランド：${esc(c.brand)}<br>状態：${esc(c.status)}<br>枚数：${c.count||1}</p><p class="note">${esc(c.memo)}</p><div class="actions"><button class="primary" onclick="closeDetail();openAdd('',cards.find(x=>x.id==${JSON.stringify(c.id)}))">編集</button><button onclick="removeCard('${c.id}');closeDetail()">削除</button></div></div></div>`;
+ $("detailModal").classList.add("show");
+}
+function closeDetail(){$("detailModal").classList.remove("show")}
+function renderCollection(){
+ const total=cards.length,owned=cards.filter(c=>c.status==="所持"||c.status==="ダブり").length,dupe=cards.filter(c=>c.status==="ダブり").length,unowned=cards.filter(c=>c.status==="未所持").length;
+ $("kpis").innerHTML=`<div class="kpi"><b>${total}</b><span>登録カード</span></div><div class="kpi"><b>${owned}</b><span>所持</span></div><div class="kpi"><b>${unowned}</b><span>未所持</span></div><div class="kpi"><b>${dupe}</b><span>ダブり</span></div>`;
+ const group=(key)=>{let o={};cards.forEach(c=>{let k=c[key]||"未分類";o[k]??={total:0,owned:0};o[k].total++;if(c.status!=="未所持")o[k].owned++});return o};
+ $("seriesBars").innerHTML=Object.entries(group("series")).sort().map(([k,v])=>`<div class="barrow"><div class="barhead"><b>${esc(k)}</b><span>${v.owned}/${v.total}種</span></div><div class="progress"><i style="width:${v.total?v.owned/v.total*100:0}%"></i></div></div>`).join("")||'<p class="note">カードを登録するとここに表示されます。</p>';
+ $("brandBars").innerHTML=Object.entries(group("brand")).sort().map(([k,v])=>`<div class="item"><b>${esc(k)}</b><br><span class="small">${v.owned}/${v.total}種 所持</span><div class="progress" style="margin-top:7px"><i style="width:${v.total?v.owned/v.total*100:0}%"></i></div></div>`).join("");
+ $("typeBars").innerHTML=Object.entries(group("type")).sort().map(([k,v])=>`<div class="item"><b>${esc(k)}</b><br><span class="small">${v.owned}/${v.total}種 所持</span><div class="progress" style="margin-top:7px"><i style="width:${v.total?v.owned/v.total*100:0}%"></i></div></div>`).join("");
+}
+function runOCR(dataURL){
+ // Browser-only OCR: use native TextDetector if available. Otherwise leave fields ready for manual confirmation.
+ if("TextDetector" in window){try{new TextDetector().detect(new Image()).then(()=>{}).catch(()=>{})}catch(e){}}
+ $("ocrArea").textContent="画像からの文字認識はブラウザ対応状況により利用できます。認識結果は必ず確認してください。";
+}
+$("photos").addEventListener("change",e=>{[...e.target.files].forEach(file=>{let r=new FileReader();r.onload=()=>openAdd(r.result);r.readAsDataURL(file)});e.target.value=""});
+["q","series","promo","type","brand","rarity"].forEach(id=>$(id).addEventListener("input",render));
+document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>{document.querySelectorAll("nav button").forEach(x=>x.classList.remove("active"));b.classList.add("active");document.querySelectorAll(".view").forEach(x=>x.classList.remove("active"));$(b.dataset.view).classList.add("active");if(b.dataset.view==="collection")renderCollection()});
+function exportJSON(){let blob=new Blob([JSON.stringify({version:2,exported:new Date().toISOString(),cards},null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="aikatsu-encore-backup.json";a.click();URL.revokeObjectURL(a.href);toast("JSONバックアップを書き出しました")}
+$("importJSON").addEventListener("change",e=>{let f=e.target.files[0];if(!f)return;let r=new FileReader();r.onload=()=>{try{let x=JSON.parse(r.result);if(!Array.isArray(x.cards))throw Error();cards=x.cards;save();render();renderCollection();toast("バックアップを復元しました")}catch{alert("正しいバックアップJSONではありません")}};r.readAsText(f);e.target.value=""});
+function exportCSV(){let header=["カード名","弾数","プロモ","タイプ","ブランド","レア度","状態","枚数","メモ"];let rows=cards.map(c=>[c.name,c.series,c.promo,c.type,c.brand,c.rarity,c.status,c.count,c.memo]);let csv="\uFEFF"+[header,...rows].map(r=>r.map(v=>`"${String(v??"").replaceAll('"','""')}"`).join(",")).join("\n");let a=document.createElement("a");a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv"}));a.download="aikatsu-encore-cards.csv";a.click();toast("CSVを書き出しました")}
+function clearAll(){if(confirm("カード情報をすべて削除します。本当によろしいですか？")){cards=[];save();render();renderCollection();toast("すべて削除しました")}}
+window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferredPrompt=e;$("installBtn").style.display="inline-block"});
+async function installApp(){if(!deferredPrompt)return;deferredPrompt.prompt();deferredPrompt=null}
+const manifest={name:"アイカツアンコール カード管理",short_name:"アイカツカード",start_url:location.href,display:"standalone",background_color:"#fff8fc",theme_color:"#e86fa7",icons:[]};
+const mb=new Blob([JSON.stringify(manifest)],{type:"application/manifest+json"});$("manifest").href=URL.createObjectURL(mb);
+render();renderCollection();
+</script>
+</body></html>
